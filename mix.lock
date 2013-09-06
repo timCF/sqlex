@@ -1,1 +1,1 @@
-[ "emysql": {:git, "https://github.com/Eonblast/Emysql.git", "a835fc5e839e4b4efe3d035e4c028d6c591bb9f9", []} ]
+[ "emysql": {:git, "https://github.com/d0rc/Emysql.git", "ae279d0d968434c82843bc5380a076af98b90718", []} ]
