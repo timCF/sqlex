@@ -39,6 +39,10 @@ defmodule SQL do
 
 	def execute(sql, args // []), do: :emysql.execute(:mp, query(sql, args))
 
+	def check_transaction([]), do: false
+	def check_transaction([:ok_packet[]]), do: true
+	def check_transaction([_interim|tail]), do: check_transaction(tail)
+
 	def init(args), do: init_pool args
 	def init_pool args_original do
 		defaults = [pool: :mp, size: 5, login: 'root', password: '', host: 'localhost', port: 3306, db: 'test']
