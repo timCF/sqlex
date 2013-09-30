@@ -37,6 +37,9 @@ defmodule SQL do
 
 	def run(sql, args), do: read query sql, args
 
+	def execute(sql, args // []), do: :emysql.execute(:mp, query(sql, args))
+
+	def init(args), do: init_pool args
 	def init_pool args_original do
 		defaults = [pool: :mp, size: 5, login: 'root', password: '', host: 'localhost', port: 3306, db: 'test']
 		args = set_defaults args_original, defaults
