@@ -2,6 +2,7 @@ defmodule SQL do
 	defrecord :result_packet, Record.extract(:result_packet, from_lib: "emysql/include/emysql.hrl")
 	defrecord :field, Record.extract(:field, from_lib: "emysql/include/emysql.hrl")
 	defrecord :ok_packet, Record.extract(:ok_packet, from_lib: "emysql/include/emysql.hrl")
+	defrecord :error_packet, Record.extract(:error_packet, from_lib: "emysql/include/emysql.hrl")
 	defp to_atom(val), do: :erlang.binary_to_atom(val, :utf8)  
 	
 
@@ -40,8 +41,11 @@ defmodule SQL do
 
 	def execute(sql, args // []), do: :emysql.execute(:mp, query(sql, args))
 
+	def check_transaction({:rollback, list, :ok_packet[]}), do: {:rollback, list}
+	def check_transaction({:rollback_failed, list, _}), do: {:rollback_failed, list}
 	def check_transaction([]), do: false
 	def check_transaction([:ok_packet[]]), do: true
+	def check_transaction(:ok_packet[]), do: true
 	def check_transaction([_interim|tail]), do: check_transaction(tail)
 
 	def init(args), do: init_pool args
@@ -92,7 +96,11 @@ defmodule SQL.Transaction do
 				# at this point we need to check transaction result
 				# and issue rollback if there was an error...
 				#
-				result
+				case SQL.check_transaction result do
+					true -> result
+					false -> 
+						{:rollback, result, monitor_work(connection, timeout, [connection, "rollback;", []])}
+				end
 			after timeout ->
 				:erlang.demonitor mref, [:flush]
 				:erlang.exit pid, :kill

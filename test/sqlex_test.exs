@@ -50,4 +50,13 @@ defmodule SqlexTest do
   	[row] = SQL.run "select ? as ok", [1]
   	assert(row[:ok] == 1)
   end
+
+  test "transaction works" do
+    SQL.execute "drop database sqlex_test"  # just to clean-up things
+    :ok_packet[] = SQL.execute "create database sqlex_test"
+    :ok_packet[] = SQL.execute "create table sqlex_test.test (id int not null auto_increment, value varchar(255), primary key (id))"
+    assert true == SQL.check_transaction SQL.Transaction.run(:mp, "start transaction; insert into sqlex_test.test (value) values ('hi'); commit;")
+    assert {:rollback, _} = SQL.check_transaction SQL.Transaction.run(:mp, "start transaction; insert into sqlex_test.test (id, value) values (1. 'hi'); commit;")
+    :ok_packet[] = SQL.execute "drop database sqlex_test"
+  end
 end
