@@ -4,7 +4,6 @@ defmodule Sqlex.Mixfile do
   def project do
     [ app: :sqlex,
       version: "0.0.1",
-      elixir: "~> 0.10.1-dev",
       deps: deps ]
   end
 
