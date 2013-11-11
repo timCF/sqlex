@@ -1,4 +1,6 @@
 defmodule SQL do
+    @default_pool :mp
+
 	defrecord :result_packet, Record.extract(:result_packet, from_lib: "emysql/include/emysql.hrl")
 	defrecord :field, Record.extract(:field, from_lib: "emysql/include/emysql.hrl")
 	defrecord :ok_packet, Record.extract(:ok_packet, from_lib: "emysql/include/emysql.hrl")
@@ -16,8 +18,8 @@ defmodule SQL do
 		end
 	end
 
-	def read sql do
-		:result_packet[rows: rows, field_list: fields]  = :emysql.execute :mp, sql
+	def read sql, pool // @default_pool do
+		:result_packet[rows: rows, field_list: fields]  = :emysql.execute pool, sql
 		name_list = lc :field[name: name] inlist fields, do: to_atom name
 		lc row inlist rows, do: Enum.zip(name_list, row)
 	end
@@ -45,7 +47,7 @@ defmodule SQL do
 
 	def run(sql, args), do: read query sql, args
 
-	def execute(sql, args // []), do: :emysql.execute(:mp, query(sql, args))
+	def execute(sql, args // [], pool // @default_pool), do: :emysql.execute(pool, query(sql, args))
 
 	def check_transaction({:rollback, list, :ok_packet[]}), do: {:rollback, list}
 	def check_transaction({:rollback_failed, list, _}), do: {:rollback_failed, list}
@@ -56,7 +58,7 @@ defmodule SQL do
 
 	def init(args), do: init_pool args
 	def init_pool args_original do
-		defaults = [pool: :mp, size: 5, login: 'root', password: '', host: 'localhost', port: 3306, db: 'test']
+		defaults = [pool: @default_pool, size: 5, login: 'root', password: '', host: 'localhost', port: 3306, db: 'test']
 		args = set_defaults args_original, defaults
 		:ok = :emysql.add_pool args[:pool], args[:size], args[:login], args[:password], args[:host], args[:port], args[:db], :utf8
 	end
