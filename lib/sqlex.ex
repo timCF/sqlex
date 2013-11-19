@@ -28,6 +28,9 @@ defmodule SQL do
 
 	defp quote_if_needed(v) when is_integer(v), do: v
 	defp quote_if_needed(v) when is_binary(v), do: [[?'|escape(:erlang.binary_to_list(v))]|[?']]
+	defp quote_if_needed(v) when is_list(v) do
+		v |> Enum.map(&quote_if_needed/1)
+	end
 
 	defp prep_argument(arg) when is_list(arg), do: [[?(| :erlang.binary_to_list Enum.join quote_if_needed(arg), "," ]|[?)]]
 	defp prep_argument(arg) when is_binary(arg), do: [[?'|escape(:erlang.binary_to_list(arg))]|[?']] 
