@@ -26,7 +26,10 @@ defmodule SQL do
 	defp escape([?'|str]), do: [92,?'|escape(str)]
 	defp escape([c|str]), do: [c|escape(str)]
 
-	defp prep_argument(arg) when is_list(arg), do: [[?(| :erlang.binary_to_list Enum.join arg, "," ]|[?)]]
+	defp quote_if_needed(v) when is_integer(v), do: v
+	defp quote_if_needed(v) when is_binary(v), do: [[?'|escape(:erlang.binary_to_list(v))]|[?']]
+
+	defp prep_argument(arg) when is_list(arg), do: [[?(| :erlang.binary_to_list Enum.join quote_if_needed(arg), "," ]|[?)]]
 	defp prep_argument(arg) when is_binary(arg), do: [[?'|escape(:erlang.binary_to_list(arg))]|[?']] 
 	defp prep_argument(arg) when is_integer(arg), do: :erlang.integer_to_list arg
 
