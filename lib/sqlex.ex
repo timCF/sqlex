@@ -45,7 +45,7 @@ defmodule SQL do
 
 	def query(sql, args), do: :erlang.list_to_binary List.flatten in_query sql, args
 
-	def run(sql, args), do: read query sql, args
+	def run(sql, args, pool // @default_pool), do: read(query(sql, args), pool)
 
 	def execute(sql, args // [], pool // @default_pool), do: :emysql.execute(pool, query(sql, args))
 
