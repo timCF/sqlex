@@ -18,6 +18,14 @@ defmodule SQL do
 		end
 	end
 
+    # Wraps stored procedure calls
+    defp _call sql, pool do
+        [:result_packet[rows: rows, field_list: fields],
+            :ok_packet[]] = :emysql.execute pool, sql
+        name_list = lc :field[name: name] inlist fields, do: to_atom name
+        lc row inlist rows, do: Enum.zip(name_list, row)
+    end
+
 	def read sql, pool // @default_pool do
 		:result_packet[rows: rows, field_list: fields]  = :emysql.execute pool, sql
 		name_list = lc :field[name: name] inlist fields, do: to_atom name
@@ -46,6 +54,8 @@ defmodule SQL do
 	def query(sql, args), do: :erlang.list_to_binary List.flatten in_query sql, args
 
 	def run(sql, args, pool // @default_pool), do: read(query(sql, args), pool)
+
+	def call(sql, args, pool // @default_pool), do: _call(query(sql, args), pool)
 
 	def execute(sql, args // [], pool // @default_pool), do: :emysql.execute(pool, query(sql, args))
 
