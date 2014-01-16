@@ -79,6 +79,16 @@ defmodule SQL.Transaction do
 		connection = :emysql_conn_mgr.wait_for_connection(pool_id)
 		monitor_work(connection, timeout, [connection, sql, []])
 	end
+	case Kernel.function_exported? Kernel, :send, 2 do
+		false ->
+			defp send_msg(pid, value) do
+				pid <- value
+			end
+		true ->
+			defp send_msg(pid, value) do
+				send(pid, value)
+			end
+	end
 	def monitor_work(connection, timeout, args) do
 		connection = case :emysql_conn.need_test_connection(connection) do
 			true ->
@@ -89,7 +99,7 @@ defmodule SQL.Transaction do
 		parent = self
 		{pid, mref} =:erlang.spawn_monitor fn ->
 			:erlang.put :query_arguments, args
-			parent <- { self, apply(&:emysql_conn.execute/3, args)}
+			send_msg(parent, { self, apply(&:emysql_conn.execute/3, args)})
 		end
 		receive do
 			{:'DOWN', ^mref, :process, {:_, :closed}} ->
