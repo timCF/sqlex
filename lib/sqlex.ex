@@ -45,6 +45,8 @@ defmodule SQL do
 	defp prep_argument(arg) when is_list(arg), do: [[?(| :erlang.binary_to_list Enum.join quote_if_needed(arg), "," ]|[?)]]
 	defp prep_argument(arg) when is_binary(arg), do: [[?'|escape(:erlang.binary_to_list(arg))]|[?']] 
 	defp prep_argument(arg) when is_integer(arg), do: :erlang.integer_to_list arg
+	defp prep_argument(nil), do: 'NULL'
+	defp prep_argument(:undefined), do: 'NULL'
 
 	defp in_query([], _), do: []
 	defp in_query(sql, args) when is_binary(sql), do: in_query(:erlang.binary_to_list(sql), args)
