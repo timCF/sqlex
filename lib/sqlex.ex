@@ -1,4 +1,5 @@
 defmodule SQL do
+    require Decimal
     @default_pool :mp
 
 	defrecord :result_packet, Record.extract(:result_packet, from_lib: "emysql/include/emysql.hrl")
@@ -45,6 +46,8 @@ defmodule SQL do
 	defp prep_argument(arg) when is_list(arg), do: [[?(| :erlang.binary_to_list Enum.join quote_if_needed(arg), "," ]|[?)]]
 	defp prep_argument(arg) when is_binary(arg), do: [[?'|escape(:erlang.binary_to_list(arg))]|[?']] 
 	defp prep_argument(arg) when is_integer(arg), do: :erlang.integer_to_list arg
+	defp prep_argument(arg) when is_float(arg), do: :erlang.float_to_list arg
+    defp prep_argument(arg) when is_record(arg, Decimal), do: to_char_list(Decimal.to_string arg)
 	defp prep_argument(nil), do: 'NULL'
 	defp prep_argument(:undefined), do: 'NULL'
 
