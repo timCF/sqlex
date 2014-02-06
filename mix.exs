@@ -15,7 +15,7 @@ defmodule Sqlex.Mixfile do
   # Returns the list of dependencies in the format:
   # { :foobar, "0.1", git: "https://github.com/elixir-lang/foobar.git" }
   defp deps do
-    [ {:emysql, "0.3", github: "Eonblast/Emysql"},
+    [ {:emysql, github: "Eonblast/Emysql"},
       {:decimal, github: "ericmj/decimal"} ]
   end
 end

@@ -27,7 +27,7 @@ defmodule SQL do
         lc row inlist rows, do: Enum.zip(name_list, row)
     end
 
-	def read sql, pool // @default_pool do
+	def read sql, pool \\ @default_pool do
 		:result_packet[rows: rows, field_list: fields]  = :emysql.execute pool, sql
 		name_list = lc :field[name: name] inlist fields, do: to_atom name
 		lc row inlist rows, do: Enum.zip(name_list, row)
@@ -58,11 +58,11 @@ defmodule SQL do
 
 	def query(sql, args), do: :erlang.list_to_binary List.flatten in_query sql, args
 
-	def run(sql, args, pool // @default_pool), do: read(query(sql, args), pool)
+	def run(sql, args, pool \\ @default_pool), do: read(query(sql, args), pool)
 
-	def call(sql, args, pool // @default_pool), do: _call(query(sql, args), pool)
+	def call(sql, args, pool \\ @default_pool), do: _call(query(sql, args), pool)
 
-	def execute(sql, args // [], pool // @default_pool), do: :emysql.execute(pool, query(sql, args))
+	def execute(sql, args \\ [], pool \\ @default_pool), do: :emysql.execute(pool, query(sql, args))
 
 	def check_transaction({:rollback, list, :ok_packet[]}), do: {:rollback, list}
 	def check_transaction({:rollback_failed, list, _}), do: {:rollback_failed, list}
@@ -80,7 +80,7 @@ defmodule SQL do
 end
 
 defmodule SQL.Transaction do
-	def run(pool_id, sql, timeout // 1200000) do
+	def run(pool_id, sql, timeout \\ 1200000) do
 		connection = :emysql_conn_mgr.wait_for_connection(pool_id)
 		monitor_work(connection, timeout, [connection, sql, []])
 	end
