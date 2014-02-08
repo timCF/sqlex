@@ -1,2 +1,2 @@
-[ "decimal": {:git, "git://github.com/ericmj/decimal.git", "33b52b6d8fec1e18245fbd7f1312a43103e25f5b", []},
+[ "decimal": {:git, "git://github.com/ericmj/decimal.git", "ca3ca3de2425b1ee19d175eca92d80dcfe02fdb1", []},
   "emysql": {:git, "git://github.com/Eonblast/Emysql.git", "62b7c9b12daacfcbcf274bc0925a7f8d10e3a1e0", []} ]
