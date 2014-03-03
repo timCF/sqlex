@@ -39,7 +39,7 @@ defmodule SQL do
 		end
 	end
 	def read sql, pool \\ @default_pool do
-		:result_packet[rows: rows, field_list: fields]  = retry_emysql_execute pool, sql
+		:result_packet[rows: rows, field_list: fields]  = :emysql.execute pool, sql
 		name_list = lc :field[name: name] inlist fields, do: to_atom name
 		lc row inlist rows, do: Enum.zip(name_list, row)
 	end
