@@ -1,4 +1,5 @@
 defmodule SQL do
+    import Inutils, only: [zero_pad: 1]
     require Decimal
     @default_pool :mp
 
@@ -8,6 +9,10 @@ defmodule SQL do
 	defrecord :error_packet, Record.extract(:error_packet, from_lib: "emysql/include/emysql.hrl")
 	defp to_atom(val), do: :erlang.binary_to_atom(val, :utf8)  
 	
+
+	def date_to_string({:datetime, {{year, month, day}, {hour, minute, second}}}) do
+		"#{year}-#{zero_pad month}-#{zero_pad day} #{zero_pad hour}:#{zero_pad minute}:#{zero_pad second}"
+	end
 
 	defp set_defaults(dict, defaults), do: set_defaults(dict, defaults, Dict.keys(defaults))
 	
