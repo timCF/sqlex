@@ -1,6 +1,7 @@
 defmodule SQL do
     import Inutils, only: [zero_pad: 1]
     require Decimal
+    require Record
     @default_pool :mp
 
 	defrecord :result_packet, Record.extract(:result_packet, from_lib: "emysql/include/emysql.hrl")
