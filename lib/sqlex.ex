@@ -90,9 +90,9 @@ defmodule SQL do
 
 	def init(args), do: init_pool args
 	def init_pool args_original do
-		defaults = [pool: @default_pool, size: 5, login: 'root', password: '', host: 'localhost', port: 3306, db: 'test']
+		defaults = [pool: @default_pool, size: 5, user: 'root', password: '', host: 'localhost', port: 3306, db: 'test']
 		args = set_defaults args_original, defaults
-		:ok = :emysql.add_pool args[:pool], args[:size], args[:login], args[:password], args[:host], args[:port], args[:db], :utf8
+		:ok = :emysql.add_pool args[:pool], args[:size], args[:user], args[:password], args[:host], args[:port], args[:db], :utf8
 	end
 end
 
