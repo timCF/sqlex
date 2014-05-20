@@ -10,7 +10,9 @@ defmodule Sqlex.Mixfile do
 
   # Configuration for the OTP application
   def application do
-    []
+    [
+      applications: [:emysql]
+    ]
   end
 
   # Returns the list of dependencies in the format:
@@ -18,7 +20,7 @@ defmodule Sqlex.Mixfile do
   defp deps do
     [ {:emysql, github: "Eonblast/Emysql"},
       {:inutils, git: "git@git.maxbet.asia:elixir/inutils.git"},
-      {:decimal, github: "ericmj/decimal"} ]
+      {:decimal, github: "ericmj/decimal", tag: "0676c03d8460809db400c7c3dbaef65adc543721"} ]
       
   end
 end

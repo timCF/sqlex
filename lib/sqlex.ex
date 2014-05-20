@@ -29,25 +29,14 @@ defmodule SQL do
     defp _call sql, pool do
         [:result_packet[rows: rows, field_list: fields],
             :ok_packet[]] = :emysql.execute pool, sql
-        name_list = lc :field[name: name] inlist fields, do: to_atom name
-        lc row inlist rows, do: Enum.zip(name_list, row)
+        name_list = for :field[name: name] <- fields, do: to_atom(name)
+        for row <- rows, do: Enum.zip(name_list, row)
     end
 
-	def retry_emysql_execute pool, sql, 10, do: nil
-	def retry_emysql_execute pool, sql, try \\ 0 do
-		res = try do
-			:emysql.execute pool, sql
-		catch _, _ -> nil
-		end
-		case res do
-			res = :result_packet[] -> res
-			_ -> retry_emysql_execute pool, sql, try+1
-		end
-	end
 	def read sql, pool \\ @default_pool do
 		:result_packet[rows: rows, field_list: fields]  = :emysql.execute pool, sql
-		name_list = lc :field[name: name] inlist fields, do: to_atom name
-		lc row inlist rows, do: Enum.zip(name_list, row)
+		name_list = for :field[name: name] <- fields, do: to_atom(name)
+		for row <- rows, do: Enum.zip(name_list, row)
 	end
 
 	defp escape([]), do: []
