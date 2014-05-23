@@ -17,7 +17,7 @@ defmodule Sqlex.Mixfile do
   # { :foobar, "0.1", git: "https://github.com/elixir-lang/foobar.git" }
   defp deps do
     [ {:emysql, github: "Eonblast/Emysql"},
-      {:inutils, git: "git@git.maxbet.asia:elixir/inutils.git"},
+      {:inutils, git: "git@git.appforge.ru:elixir/inutils.git"},
       {:decimal, github: "ericmj/decimal"} ]
       
   end
