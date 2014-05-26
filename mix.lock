@@ -1,3 +1,3 @@
-[ "decimal": {:git, "git://github.com/ericmj/decimal.git", "ab1b6637aac1eabce5dc5a57290b5366878c2e84", []},
-  "emysql": {:git, "git://github.com/Eonblast/Emysql.git", "cde1121ba3a326278d870cdd34514172a12d8865", []},
-  "inutils": {:git, "git@git.maxbet.asia:elixir/inutils.git", "effdd646eac1fc099b302baa6ac66284e9dcfd3c", []} ]
+%{"decimal": {:git, "git://github.com/ericmj/decimal.git", "0676c03d8460809db400c7c3dbaef65adc543721", [tag: "0676c03d8460809db400c7c3dbaef65adc543721"]},
+  "emysql": {:git, "git://github.com/Eonblast/Emysql.git", "c7e2103f8b737667f0128802e8de2f0d5ed2fa5c", []},
+  "inutils": {:git, "git@git.maxbet.asia:elixir/inutils.git", "d21ba8ab1898fecb2ee5a48421711aa6ec119597", []}}
