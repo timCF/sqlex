@@ -2,9 +2,10 @@ Code.require_file "test_helper.exs", __DIR__
 
 defmodule SqlexTest do
   use ExUnit.Case
+  require SQL
 
   test "we can start apps" do
-  	assert( Enum.all? (lc a inlist [:crypto, :emysql], do: :application.start a), fn r ->
+  	assert( Enum.all? (for a <- [:crypto, :emysql], do: :application.start a), fn r ->
   		{:error, {:already_started, _}} = r
   	end)	 
   end
@@ -53,10 +54,10 @@ defmodule SqlexTest do
 
   test "transaction works" do
     SQL.execute "drop database sqlex_test"  # just to clean-up things
-    :ok_packet[] = SQL.execute "create database sqlex_test"
-    :ok_packet[] = SQL.execute "create table sqlex_test.test (id int not null auto_increment, value varchar(255), primary key (id))"
+    SQL.ok_packet() = SQL.execute "create database sqlex_test"
+    SQL.ok_packet() = SQL.execute "create table sqlex_test.test (id int not null auto_increment, value varchar(255), primary key (id))"
     assert true == SQL.check_transaction SQL.Transaction.run(:mp, "start transaction; insert into sqlex_test.test (value) values ('hi'); commit;")
     assert {:rollback, _} = SQL.check_transaction SQL.Transaction.run(:mp, "start transaction; insert into sqlex_test.test (id, value) values (1. 'hi'); commit;")
-    :ok_packet[] = SQL.execute "drop database sqlex_test"
+    SQL.ok_packet() = SQL.execute "drop database sqlex_test"
   end
 end
