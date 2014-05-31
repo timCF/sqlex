@@ -4,10 +4,10 @@ defmodule SQL do
     require Record
     @default_pool :mp
 
-	defrecord :result_packet, Record.extract(:result_packet, from_lib: "emysql/include/emysql.hrl")
-	defrecord :field, Record.extract(:field, from_lib: "emysql/include/emysql.hrl")
-	defrecord :ok_packet, Record.extract(:ok_packet, from_lib: "emysql/include/emysql.hrl")
-	defrecord :error_packet, Record.extract(:error_packet, from_lib: "emysql/include/emysql.hrl")
+	Record.defrecord :result_packet, Record.extract(:result_packet, from_lib: "emysql/include/emysql.hrl")
+	Record.defrecord :field, Record.extract(:field, from_lib: "emysql/include/emysql.hrl")
+	Record.defrecord :ok_packet, Record.extract(:ok_packet, from_lib: "emysql/include/emysql.hrl")
+	Record.defrecord :error_packet, Record.extract(:error_packet, from_lib: "emysql/include/emysql.hrl")
 	defp to_atom(val), do: :erlang.binary_to_atom(val, :utf8)  
 	
 
@@ -27,15 +27,14 @@ defmodule SQL do
 
     # Wraps stored procedure calls
     defp _call sql, pool do
-        [:result_packet[rows: rows, field_list: fields],
-            :ok_packet[]] = :emysql.execute pool, sql
-        name_list = for :field[name: name] <- fields, do: to_atom(name)
+        [result_packet(rows: rows, field_list: fields), ok_packet()] = :emysql.execute pool, sql
+        name_list = for field(name: name) <- fields, do: to_atom(name)
         for row <- rows, do: Enum.zip(name_list, row)
     end
 
 	def read sql, pool \\ @default_pool do
-		:result_packet[rows: rows, field_list: fields]  = :emysql.execute pool, sql
-		name_list = for :field[name: name] <- fields, do: to_atom(name)
+		result_packet(rows: rows, field_list: fields)  = :emysql.execute pool, sql
+		name_list = for field(name: name) <- fields, do: to_atom(name)
 		for row <- rows, do: Enum.zip(name_list, row)
 	end
 
@@ -53,7 +52,7 @@ defmodule SQL do
 	defp prep_argument(arg) when is_binary(arg), do: [[?'|escape(:erlang.binary_to_list(arg))]|[?']] 
 	defp prep_argument(arg) when is_integer(arg), do: :erlang.integer_to_list arg
 	defp prep_argument(arg) when is_float(arg), do: :erlang.float_to_list arg
-    defp prep_argument(arg) when is_record(arg, Decimal), do: to_char_list(Decimal.to_string arg)
+    defp prep_argument(arg = %Decimal{}), do: to_char_list(Decimal.to_string arg)
 	defp prep_argument(nil), do: 'NULL'
 	defp prep_argument(:undefined), do: 'NULL'
 
@@ -70,11 +69,11 @@ defmodule SQL do
 
 	def execute(sql, args \\ [], pool \\ @default_pool), do: :emysql.execute(pool, query(sql, args))
 
-	def check_transaction({:rollback, list, :ok_packet[]}), do: {:rollback, list}
+	def check_transaction({:rollback, list, ok_packet()}), do: {:rollback, list}
 	def check_transaction({:rollback_failed, list, _}), do: {:rollback_failed, list}
 	def check_transaction([]), do: false
-	def check_transaction([:ok_packet[]]), do: true
-	def check_transaction(:ok_packet[]), do: true
+	def check_transaction([ok_packet()]), do: true
+	def check_transaction(ok_packet()), do: true
 	def check_transaction([_interim|tail]), do: check_transaction(tail)
 
 	def init(args), do: init_pool args
@@ -86,6 +85,8 @@ defmodule SQL do
 end
 
 defmodule SQL.Transaction do
+	require Record
+	Record.defrecord :emysql_connection, Record.extract(:emysql_connection, from_lib: "emysql/include/emysql.hrl")
 	def run(pool_id, sql, timeout \\ 1200000) do
 		connection = :emysql_conn_mgr.wait_for_connection(pool_id)
 		monitor_work(connection, timeout, [connection, sql, []])
@@ -115,7 +116,7 @@ defmodule SQL.Transaction do
 		receive do
 			{:'DOWN', ^mref, :process, {:_, :closed}} ->
 				case :emysql_conn.reset_connection :emysql_conn_mgr.pool, connection, :keep do
-					newconnection when is_record(newconnection, :emysql_connection) ->
+					newconnection = emysql_connection() ->
 						[_|otherargs] = args
 						monitor_work(newconnection, timeout, [newconnection|otherargs])
 					{:error, failedreset} ->
