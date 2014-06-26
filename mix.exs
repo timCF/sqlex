@@ -20,7 +20,7 @@ defmodule Sqlex.Mixfile do
   defp deps do
     [ 
       {:emysql, github: "Eonblast/Emysql"},
-      {:inutils, git: "git@git.maxbet.asia:elixir/inutils.git"},
+      {:inutils, git: "git@git.appforge.ru:elixir/inutils.git"},
       {:decimal, github: "ericmj/decimal"} 
     ]
       
