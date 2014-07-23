@@ -33,9 +33,13 @@ defmodule SQL do
     end
 
 	def read sql, pool \\ @default_pool do
-		result_packet(rows: rows, field_list: fields)  = :emysql.execute pool, sql
-		name_list = for field(name: name) <- fields, do: to_atom(name)
-		for row <- rows, do: Enum.zip(name_list, row)
+		case :emysql.execute pool, sql do
+			result_packet(rows: rows, field_list: fields) -> 
+				name_list = for field(name: name) <- fields, do: to_atom(name)
+				for row <- rows, do: Enum.zip(name_list, row)
+			error_packet(msg: msg) ->
+				{:error, msg}  
+		end
 	end
 
 	defp escape([]), do: []
