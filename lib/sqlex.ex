@@ -7,6 +7,8 @@ defmodule SQL do
 	Record.defrecord :ok_packet, Record.extract(:ok_packet, from_lib: "emysql/include/emysql.hrl")
 	Record.defrecord :error_packet, Record.extract(:error_packet, from_lib: "emysql/include/emysql.hrl")
 
+	def default_pool: @default_pool
+
 	defp to_atom(val), do: :erlang.binary_to_atom(val, :utf8)  
 	defp set_defaults(dict, defaults), do: set_defaults(dict, defaults, Dict.keys(defaults))
 	
