@@ -26,9 +26,7 @@ defmodule SQL do
     		[result_packet(rows: rows, field_list: fields), ok_packet()] -> 
 		        name_list = for field(name: name) <- fields, do: to_atom(name)
 		        for row <- rows, do: Enum.zip(name_list, row)
-			ok_packet() -> :ok	
-			error_packet(msg: msg) ->
-				{:error, msg}  	
+			any_packet -> any_packet
     	end
     end
 
