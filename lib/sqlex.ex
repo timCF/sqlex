@@ -22,9 +22,14 @@ defmodule SQL do
 
     # Wraps stored procedure calls
     defp _call sql, pool do
-        [result_packet(rows: rows, field_list: fields), ok_packet()] = :emysql.execute pool, sql
-        name_list = for field(name: name) <- fields, do: to_atom(name)
-        for row <- rows, do: Enum.zip(name_list, row)
+    	case :emysql.execute(pool, sql) do
+    		[result_packet(rows: rows, field_list: fields), ok_packet()] -> 
+		        name_list = for field(name: name) <- fields, do: to_atom(name)
+		        for row <- rows, do: Enum.zip(name_list, row)
+			ok_packet() -> :ok	
+			error_packet(msg: msg) ->
+				{:error, msg}  	
+    	end
     end
 
 	def read sql, pool \\ @default_pool do
