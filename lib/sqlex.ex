@@ -13,9 +13,9 @@ defmodule SQL do
 	defp time_from_now(datetime, date, time) do
 		{{yr,mth,day}, {hr,min,sec}} = :calendar.now_to_datetime(datetime)
 		case {date, time} do
-			{true, true} -> :io_lib.format("~4..0B-~2..0B-~2..0B ~2..0B:~2..0B:~2..0B", [yr,mth,day,hr,min,sec])
-			{true, false} -> :io_lib.format("~4..0B-~2..0B-~2..0B", [yr,mth,day])
-			{false, true} -> :io_lib.format("~2..0B:~2..0B:~2..0B", [hr,min,sec])
+			{true, true} -> :io_lib.format("'~4..0B-~2..0B-~2..0B ~2..0B:~2..0B:~2..0B'", [yr,mth,day,hr,min,sec])
+			{true, false} -> :io_lib.format("'~4..0B-~2..0B-~2..0B'", [yr,mth,day])
+			{false, true} -> :io_lib.format("'~2..0B:~2..0B:~2..0B'", [hr,min,sec])
 			_ -> 'NULL'
 		end
 	end
