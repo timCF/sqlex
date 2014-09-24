@@ -9,6 +9,17 @@ defmodule SQL do
 
 	def default_pool, do: @default_pool
 
+	defp time_from_now(:now, date, time), do: time_from_now(:erlang.now, date, time)
+	defp time_from_now(datetime, date, time) do
+		{{yr,mth,day}, {hr,min,sec}} = :calendar.now_to_datetime(datetime)
+		case {date, time} do
+			{true, true} -> :io_lib.format("~4..0B-~2..0B-~2..0B ~2..0B:~2..0B:~2..0B", [yr,mth,day,hr,min,sec])
+			{true, false} -> :io_lib.format("~4..0B-~2..0B-~2..0B", [yr,mth,day])
+			{false, true} -> :io_lib.format("~2..0B:~2..0B:~2..0B", [hr,min,sec])
+			_ -> 'NULL'
+		end
+	end
+
 	defp to_atom(val), do: :erlang.binary_to_atom(val, :utf8)  
 	defp set_defaults(dict, defaults), do: set_defaults(dict, defaults, Dict.keys(defaults))
 	
@@ -54,7 +65,9 @@ defmodule SQL do
     defp prep_argument(true), do: 'true'
     defp prep_argument(false), do: 'false'
     defp prep_argument(:now), do: prep_argument(:erlang.now)
-    defp prep_argument(datetime={_,_,_}), do: '#{div(:timer.now_diff(datetime, {0,0,0}), 1000000)}'
+    defp prep_argument({:datetime, datetime}), do: time_from_now(datetime, true, true)
+    defp prep_argument({:date, date}), do: time_from_now(datetime, true, false)
+    defp prep_argument({:time, time}), do: time_from_now(datetime, false, true)
     defp prep_argument(:null), do: 'NULL'
     defp prep_argument(:undefined), do: 'NULL'
     defp prep_argument(arg) when is_list(arg), do: [[?(| String.to_char_list Enum.join quote_if_needed(arg), "," ]|[?)]]
