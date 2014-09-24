@@ -53,6 +53,8 @@ defmodule SQL do
     defp prep_argument(nil), do: 'NULL'
     defp prep_argument(true), do: 'true'
     defp prep_argument(false), do: 'false'
+    defp prep_argument(:now), do: prep_argument(:erlang.now)
+    defp prep_argument(datetime={_,_,_}), do: '#{div(:timer.now_diff(datetime, {0,0,0}), 1000000)}'
     defp prep_argument(:null), do: 'NULL'
     defp prep_argument(:undefined), do: 'NULL'
     defp prep_argument(arg) when is_list(arg), do: [[?(| String.to_char_list Enum.join quote_if_needed(arg), "," ]|[?)]]
