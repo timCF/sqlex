@@ -110,7 +110,7 @@ defmodule SQL do
 		pool = Keyword.get(args_original, :pool, pool)
 		args = set_defaults(Keyword.delete(args_original, :pool), defaults)
 
-		:ok = :emysql.add_pool(pool, args)
+		:emysql.add_pool(pool, args)
 	end
 end
 
