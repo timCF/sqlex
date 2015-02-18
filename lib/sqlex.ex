@@ -71,7 +71,7 @@ defmodule SQL do
     defp prep_argument(:null), do: 'NULL'
     defp prep_argument(:undefined), do: 'NULL'
     defp prep_argument(arg) when is_list(arg), do: [[?(| String.to_char_list Enum.join quote_if_needed(arg), "," ]|[?)]]
-    defp prep_argument(arg) when is_binary(arg), do: [[?'|escape(String.to_char_list(arg))]|[?']]
+    defp prep_argument(arg) when is_binary(arg), do: [[?'|escape(:binary.bin_to_list(arg))]|[?']]
     defp prep_argument(arg) when is_atom(arg), do: [[?'|escape(Atom.to_char_list(arg))]|[?']]
     defp prep_argument(arg) when is_integer(arg), do: Integer.to_char_list arg
     defp prep_argument(arg) when is_float(arg), do: Float.to_char_list arg
