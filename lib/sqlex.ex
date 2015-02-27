@@ -53,6 +53,7 @@ defmodule SQL do
 
 	defp escape([]), do: []
 	defp escape([?'|str]), do: [92,?'|escape(str)]
+	defp escape([92|str]), do: [92,92|escape(str)]
 	defp escape([c|str]), do: [c|escape(str)]
 
 	defp quote_if_needed(v) when is_integer(v), do: v
