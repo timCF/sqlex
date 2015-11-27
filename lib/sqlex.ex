@@ -20,11 +20,11 @@ defmodule SQL do
 		end
 	end
 
-	defp to_atom(val), do: :erlang.binary_to_atom(val, :utf8)  
+	defp to_atom(val), do: :erlang.binary_to_atom(val, :utf8)
 	defp set_defaults(dict, defaults), do: set_defaults(dict, defaults, Dict.keys(defaults))
-	
+
 	defp set_defaults(dict, _, []), do:	dict
-	defp set_defaults(dict, defaults, [k|keys]) do 
+	defp set_defaults(dict, defaults, [k|keys]) do
 		case dict[k] do
 			nil -> set_defaults (Dict.put dict, k, defaults[k]), defaults, keys
 			_   -> set_defaults dict, defaults, keys
@@ -34,7 +34,7 @@ defmodule SQL do
     # Wraps stored procedure calls
     defp _call sql, pool do
     	case :emysql.execute(pool, sql) do
-    		[result_packet(rows: rows, field_list: fields), ok_packet()] -> 
+    		[result_packet(rows: rows, field_list: fields), ok_packet()] ->
 		        name_list = for field(name: name) <- fields, do: to_atom(name)
 		        for row <- rows, do: Enum.zip(name_list, row)
 			any_packet -> any_packet
@@ -43,11 +43,11 @@ defmodule SQL do
 
 	def read sql, pool \\ @default_pool do
 		case :emysql.execute pool, sql do
-			result_packet(rows: rows, field_list: fields) -> 
+			result_packet(rows: rows, field_list: fields) ->
 				name_list = for field(name: name) <- fields, do: to_atom(name)
 				for row <- rows, do: Enum.zip(name_list, row)
 			error_packet(msg: msg) ->
-				{:error, msg}  
+				{:error, msg}
 		end
 	end
 
@@ -71,7 +71,7 @@ defmodule SQL do
     defp prep_argument({:time, datetime}), do: time_from_now(datetime, false, true)
     defp prep_argument(:null), do: 'NULL'
     defp prep_argument(:undefined), do: 'NULL'
-    defp prep_argument(arg) when is_list(arg), do: [[?(| String.to_char_list Enum.join quote_if_needed(arg), "," ]|[?)]]
+	defp prep_argument(arg) when is_list(arg), do: [[?(| (quote_if_needed(arg) |> Enum.join(",") |> :erlang.binary_to_list) ]|[?)]]
     defp prep_argument(arg) when is_binary(arg), do: [[?'|escape(:binary.bin_to_list(arg))]|[?']]
     defp prep_argument(arg) when is_atom(arg), do: [[?'|escape(Atom.to_char_list(arg))]|[?']]
     defp prep_argument(arg) when is_integer(arg), do: Integer.to_char_list arg
@@ -169,7 +169,7 @@ defmodule SQL.Transaction do
 				#
 				case SQL.check_transaction result do
 					true -> result
-					false -> 
+					false ->
 						{:rollback, result, monitor_work(connection, timeout, [connection, "rollback;", []])}
 				end
 			after timeout ->
